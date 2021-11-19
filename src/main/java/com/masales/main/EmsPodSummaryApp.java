@@ -20,6 +20,8 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -228,17 +230,30 @@ public class EmsPodSummaryApp implements QuarkusApplication {
                     Date creationTime = rs.getDate("creationTime");
                     Date deliveryTime = rs.getDate("deliveryTime");
 
+                    java.util.Date creationTimeOnPod = new java.util.Date(creationTime.getTime());
+                    java.util.Date deliveryTimeOnPod = new java.util.Date(deliveryTime.getTime());
+
+                    LocalDateTime ldtCreation = LocalDateTime.ofInstant(creationTimeOnPod.toInstant(), ZoneOffset.UTC);
+                    LocalDateTime ldtDelivery = LocalDateTime.ofInstant(deliveryTimeOnPod.toInstant(), ZoneOffset.UTC);
+
                     ntfs.setExistOnPod(true);
-                    ntfs.setCreationTimeOnPod(new java.util.Date(creationTime.getTime()));
-                    ntfs.setDeliveryTimeOnPod(new java.util.Date(deliveryTime.getTime()));
+
+                    ntfs.setCreationTimeOnPod(java.util.Date.from(ldtCreation.toInstant(ZoneOffset.UTC)));
+                    ntfs.setDeliveryTimeOnPod(java.util.Date.from(ldtDelivery.toInstant(ZoneOffset.UTC)));
                 }
 
                 //Search on MongoDB
                 Document doc = getCollection().find(eq("notificationId", ntf.getNotificationId())).first();
                 if (doc != null) {
                     ntfs.setExistOnEms(true);
-                    ntfs.setCreationTimeOnEms(doc.getDate("creationTime"));
-                    ntfs.setDeliveryTimeOnEms(doc.getDate("deliveryTime"));
+                    java.util.Date creationTime = doc.getDate("creationTime");
+                    java.util.Date deliveryTime = doc.getDate("deliveryTime");
+
+                    LocalDateTime ldtCreation = LocalDateTime.ofInstant(creationTime.toInstant(), ZoneOffset.UTC);
+                    LocalDateTime ldtDelivery = LocalDateTime.ofInstant(deliveryTime.toInstant(), ZoneOffset.UTC);
+
+                    ntfs.setCreationTimeOnEms(java.util.Date.from(ldtCreation.toInstant(ZoneOffset.UTC)));
+                    ntfs.setDeliveryTimeOnEms(java.util.Date.from(ldtDelivery.toInstant(ZoneOffset.UTC)));
                 }
                 notifications.add(ntfs);
             }
