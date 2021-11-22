@@ -1,8 +1,10 @@
 package com.masales.main;
 
 import io.quarkus.qson.QsonDate;
+import io.quarkus.qson.QsonIgnore;
 import io.quarkus.qson.QsonProperty;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
@@ -14,6 +16,17 @@ public class Notification {
 
     @QsonDate(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private Date created;
+
+    @QsonIgnore
+    private String createdString;
+
+    public String getCreatedString() {
+        return createdString;
+    }
+
+    public void setCreatedString(String createdString) {
+        this.createdString = createdString;
+    }
 
     public String getNotificationId() {
         return notificationId;
@@ -37,6 +50,7 @@ public class Notification {
 
     public void setCreated(Date created) {
         this.created = created;
+        this.createdString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(this.created);
     }
 
     @Override

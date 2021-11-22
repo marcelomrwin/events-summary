@@ -15,10 +15,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -42,85 +39,85 @@ public class EmsPodSummaryApp implements QuarkusApplication {
             "    <meta name=\"author\" content=\"\">\n" +
             "\n" +
             "    <title>Events Summary</title>\n" +
-            "    <link href=\"../html/sbadmin2-1.0.7/bower_components/bootstrap/dist/css/bootstrap.min.css\" rel=\"stylesheet\">\n" +
-            "    <link href=\"../html/sbadmin2-1.0.7/bower_components/metisMenu/dist/metisMenu.min.css\" rel=\"stylesheet\">\n" +
-            "    <link href=\"../html/sbadmin2-1.0.7/dist/css/sb-admin-2.css\" rel=\"stylesheet\">\n" +
-            "    <link href=\"../html/content/css/theme.blue.css\" rel=\"stylesheet\">\n" +
-            "    <link rel=\"icon\" type=\"image/png\" href=\"../html/content/pages/icon-apache.png\" />\n" +
-            "    <link href=\"../html/sbadmin2-1.0.7/bower_components/font-awesome/css/font-awesome.min.css\" rel=\"stylesheet\" type=\"text/css\">\n" +
             "\n" +
+            "    <link rel=\"icon\" type=\"image/png\" href=\"../html/content/pages/icon-apache.png\" />\n" +
             "    <script type=\"text/javascript\" src=\"events.js\"></script>\n" +
             "\n" +
-            "    <style>\n" +
-            "      th {\n" +
-            "        background-color: #9fbfdf;\n" +
-            "        background-repeat: no-repeat;\n" +
-            "        background-position: center right;\n" +
-            "        padding: 4px 18px 4px 4px;\n" +
-            "        white-space: normal;\n" +
-            "        cursor: pointer;\n" +
-            "      }\n" +
-            "    </style>\n" +
+            "    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css\">\n" +
+            "    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js\"></script>\n" +
+            "    <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js\"></script>\n" +
+            "    <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables.net/r/dt/dt-1.10.22/datatables.min.css\"/>\n" +
+            "    <script type=\"text/javascript\" src=\"https://cdn.datatables.net/r/dt/dt-1.10.22/datatables.min.js\"></script>\n" +
+            "\n" +
             "</head>\n" +
             "\n" +
             "<body>\n" +
-            "  <div id=\"wrapper\">\n" +
-            "    <div id=\"page-wrapper\" style=\"margin-left: 0px;\">\n" +
-            "        <div class=\"row\">\n" +
-            "          <!--Table content -->\n" +
-            "          <table id=\"eventsTable\" class=\"table table-bordered table-condensed \" >\n" +
-            "            <caption>JMeter - Events Summary</caption>\n" +
-            "            <thead>\n" +
-            "                  <tr role=\"row\">\n" +
-            "                      <th scope=\"col\" role=\"columnheader\">Num</th>\n" +
-            "                      <th scope=\"col\" role=\"columnheader\">NotificationId</th>\n" +
-            "                      <th scope=\"col\" role=\"columnheader\">Type</th>\n" +
-            "                      <th scope=\"col\" role=\"columnheader\">Created</th>\n" +
-            "                      <th scope=\"col\" role=\"columnheader\">Exist on POD</th>\n" +
-            "                      <th scope=\"col\" role=\"columnheader\">Created on POD</th>\n" +
-            "                      <th scope=\"col\" role=\"columnheader\">Delivery on POD</th>\n" +
-            "                      <th scope=\"col\" role=\"columnheader\">Exist on EMS</th>\n" +
-            "                      <th scope=\"col\" role=\"columnheader\">Created on EMS</th>\n" +
-            "                      <th scope=\"col\" role=\"columnheader\">Delivery on EMS</th>\n" +
-            "                  </tr>\n" +
-            "             </thead>\n" +
-            "             <tbody>\n" +
-            "             </tbody>\n" +
-            "          </table>\n" +
-            "        </div>\n" +
-            "      </div>\n" +
-            "\n" +
-            "  </div>\n" +
-            "\n" +
-            "  <script src=\"../html/sbadmin2-1.0.7/bower_components/jquery/dist/jquery.min.js\"></script>\n" +
-            "  <script src=\"../html/sbadmin2-1.0.7/bower_components/bootstrap/dist/js/bootstrap.min.js\"></script>\n" +
-            "  <script type=\"text/javascript\" src=\"../html/content/js/jquery.tablesorter.min.js\"></script>\n" +
-            "\n" +
+            "  <!--Table content -->\n" +
+            "  <table id=\"eventsTable\" class=\"display\" cellspacing=\"5\"  >\n" +
+            "    <caption>JMeter - Events Summary</caption>\n" +
+            "    <thead>\n" +
+            "      <tr role=\"row\">\n" +
+            "        <th scope=\"col\" role=\"columnheader\">NotificationId</th>\n" +
+            "        <th scope=\"col\" role=\"columnheader\">Type</th>\n" +
+            "        <th scope=\"col\" role=\"columnheader\">Created</th>\n" +
+            "        <th scope=\"col\" role=\"columnheader\">Exist on POD</th>\n" +
+            "        <th scope=\"col\" role=\"columnheader\">Created on POD</th>\n" +
+            "        <th scope=\"col\" role=\"columnheader\">Delivery on POD</th>\n" +
+            "        <th scope=\"col\" role=\"columnheader\">Exist on EMS</th>\n" +
+            "        <th scope=\"col\" role=\"columnheader\">Created on EMS</th>\n" +
+            "        <th scope=\"col\" role=\"columnheader\">Delivery on EMS</th>\n" +
+            "      </tr>\n" +
+            "     </thead>\n" +
+            "  </table>\n" +
             "  <script>\n" +
             "\n" +
-            "    window.onload = function(){\n" +
-            "\n" +
+            "    $(document).ready(function(){\n" +
             "      console.log(events.length);\n" +
-            "\n" +
-            "      for (var i=0;i<events.length;i++){\n" +
-            "        var ntf = events[i];\n" +
-            "        var row = '<tr role=\"row\"><td>'+(i+1)+'</td><td>'+ntf.id+'</td><td>'+ntf.type+'</td><td>'+ new Date(ntf.created).toUTCString()+'</td><td>'+ntf.inpod+'</td>';\n" +
-            "\n" +
-            "        if (ntf.createdpod){\n" +
-            "          row+='<td>'+ new Date(ntf.createdpod).toUTCString() + '</td><td>' + new Date(ntf.dlvpod).toUTCString()+'</td>';\n" +
-            "        }else{\n" +
-            "          row+='<td></td><td></td>';\n" +
-            "        }\n" +
-            "        row+='<td>'+ntf.inems+'</td>';\n" +
-            "        if (ntf.inems){\n" +
-            "          row+='<td>' + new Date(ntf.createdems).toUTCString()+'</td><td>'+ new Date(ntf.dlvems).toUTCString()+'</td>'\n" +
-            "        }else{\n" +
-            "          row+='<td></td><td></td>';\n" +
-            "        }\n" +
-            "        row+='</tr>';\n" +
-            "        $(\"#eventsTable > tbody\").append(row);\n" +
-            "      }\n" +
-            "    }\n" +
+            "      $('#eventsTable').dataTable({\n" +
+            "        pagination: \"bootstrap\",\n" +
+            "        filter: true,\n" +
+            "        data: events,\n" +
+            "        destroy: true,\n" +
+            "        pageLength: 50,\n" +
+            "        \"columns\":[\n" +
+            "          {\"data\":\"id\"},\n" +
+            "          {\"data\":\"type\"},\n" +
+            "          {\"data\":\"created\",\n" +
+            "            render: function (data, type, row, meta){\n" +
+            "              return new Date(data);\n" +
+            "            }\n" +
+            "          },\n" +
+            "          {\"data\":\"inpod\"},\n" +
+            "          {\"data\":\"createdpod\", \"defaultContent\":\"\",\n" +
+            "            render: function (data, type, row, meta){\n" +
+            "              return new Date(data);\n" +
+            "            }\n" +
+            "          },\n" +
+            "          {\"data\":\"dlvpod\", \"defaultContent\":\"\",\n" +
+            "            render: function (data, type, row, meta){\n" +
+            "              dt = new Date(data);\n" +
+            "              dt.setHours(dt.getHours()+1);\n" +
+            "              return dt;\n" +
+            "            }\n" +
+            "          },\n" +
+            "          {\"data\":\"inems\"},\n" +
+            "          {\"data\":\"createdems\", \"defaultContent\":\"\",\n" +
+            "            render: function (data, type, row, meta){\n" +
+            "              dt = new Date(data);\n" +
+            "              dt.setHours(dt.getHours()-1);\n" +
+            "              return dt;\n" +
+            "            }\n" +
+            "          },\n" +
+            "          {\"data\":\"dlvems\", \"defaultContent\":\"\",\n" +
+            "            render: function (data, type, row, meta){\n" +
+            "              dt = new Date(data);\n" +
+            "              // dt.setHours(dt.getHours()-1);\n" +
+            "              return dt;\n" +
+            "            }\n" +
+            "          }\n" +
+            "        ]\n" +
+            "      });\n" +
+            "    });\n" +
             "  </script>\n" +
             "  </body>\n" +
             "  </html>\n";
@@ -227,19 +224,16 @@ public class EmsPodSummaryApp implements QuarkusApplication {
                 preparedStatement.setString(1, ntf.getNotificationId());
                 ResultSet rs = preparedStatement.executeQuery();
                 while (rs.next()) {
-                    Date creationTime = rs.getDate("creationTime");
-                    Date deliveryTime = rs.getDate("deliveryTime");
-
+                    Timestamp creationTime = rs.getTimestamp("creationTime");
+                    Timestamp deliveryTime = rs.getTimestamp("deliveryTime");
+                    ntfs.setExistOnPod(true);
                     java.util.Date creationTimeOnPod = new java.util.Date(creationTime.getTime());
                     java.util.Date deliveryTimeOnPod = new java.util.Date(deliveryTime.getTime());
+                    ntfs.setCreationTimeOnPod(creationTimeOnPod);
+                    ntfs.setDeliveryTimeOnPod(deliveryTimeOnPod);
+                    ntfs.setCreationTimeOnPodString(sdf.format(creationTimeOnPod));
+                    ntfs.setDeliveryTimeOnPodString(sdf.format(deliveryTimeOnPod));
 
-                    LocalDateTime ldtCreation = LocalDateTime.ofInstant(creationTimeOnPod.toInstant(), ZoneOffset.UTC);
-                    LocalDateTime ldtDelivery = LocalDateTime.ofInstant(deliveryTimeOnPod.toInstant(), ZoneOffset.UTC);
-
-                    ntfs.setExistOnPod(true);
-
-                    ntfs.setCreationTimeOnPod(java.util.Date.from(ldtCreation.toInstant(ZoneOffset.UTC)));
-                    ntfs.setDeliveryTimeOnPod(java.util.Date.from(ldtDelivery.toInstant(ZoneOffset.UTC)));
                 }
 
                 //Search on MongoDB
@@ -249,11 +243,11 @@ public class EmsPodSummaryApp implements QuarkusApplication {
                     java.util.Date creationTime = doc.getDate("creationTime");
                     java.util.Date deliveryTime = doc.getDate("deliveryTime");
 
-                    LocalDateTime ldtCreation = LocalDateTime.ofInstant(creationTime.toInstant(), ZoneOffset.UTC);
-                    LocalDateTime ldtDelivery = LocalDateTime.ofInstant(deliveryTime.toInstant(), ZoneOffset.UTC);
+                    ntfs.setCreationTimeOnEms(creationTime);
+                    ntfs.setDeliveryTimeOnEms(deliveryTime);
 
-                    ntfs.setCreationTimeOnEms(java.util.Date.from(ldtCreation.toInstant(ZoneOffset.UTC)));
-                    ntfs.setDeliveryTimeOnEms(java.util.Date.from(ldtDelivery.toInstant(ZoneOffset.UTC)));
+                    ntfs.setCreationTimeOnEmsString(sdf.format(creationTime));
+                    ntfs.setDeliveryTimeOnEmsString(sdf.format(deliveryTime));
                 }
                 notifications.add(ntfs);
             }
@@ -276,16 +270,21 @@ public class EmsPodSummaryApp implements QuarkusApplication {
             sb.append("{\"id\":\"").append(ntfs.getNotificationId()).append("\",");
             sb.append("\"type\":\"").append(ntfs.getType()).append("\",");
             sb.append("\"created\":").append(ntfs.getCreated().getTime()).append(",");
+            sb.append("\"createdstring\": \"").append(ntfs.getCreatedString()).append("\",");
             sb.append("\"inpod\":").append(ntfs.getExistOnPod());
             if (ntfs.getExistOnPod()) {
                 sb.append(",").append("\"createdpod\":").append(ntfs.getCreationTimeOnPod().getTime()).append(",");
-                sb.append("\"dlvpod\":").append(ntfs.getDeliveryTimeOnPod().getTime());
+                sb.append("\"createdpodstring\":\"").append(ntfs.getCreationTimeOnPodString()).append("\",");
+                sb.append("\"dlvpod\":").append(ntfs.getDeliveryTimeOnPod().getTime()).append(",");
+                sb.append("\"dlvpodstring\":\"").append(ntfs.getDeliveryTimeOnPodString()).append("\"");
             }
 
             sb.append(",").append("\"inems\":").append(ntfs.getExistOnEms());
             if (ntfs.getExistOnEms()) {
                 sb.append(",").append("\"createdems\":").append(ntfs.getCreationTimeOnEms().getTime()).append(",");
-                sb.append("\"dlvems\":").append(ntfs.getDeliveryTimeOnEms().getTime());
+                sb.append("\"createdemsstring\":\"").append(ntfs.getCreationTimeOnEmsString()).append("\",");
+                sb.append("\"dlvems\":").append(ntfs.getDeliveryTimeOnEms().getTime()).append(",");
+                sb.append("\"dlvemsstring\":\"").append(ntfs.getDeliveryTimeOnEmsString()).append("\"");
             }
             sb.append("}");
             sep = ",";

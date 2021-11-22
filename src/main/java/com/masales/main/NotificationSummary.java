@@ -4,12 +4,53 @@ import java.util.Date;
 
 public class NotificationSummary {
 
+    private final Notification notification;
     private Date creationTimeOnPod;
+    private String creationTimeOnPodString;
     private Date deliveryTimeOnPod;
+    private String deliveryTimeOnPodString;
     private Date creationTimeOnEms;
+    private String creationTimeOnEmsString;
     private Date deliveryTimeOnEms;
+    private String deliveryTimeOnEmsString;
     private Boolean existOnPod = Boolean.FALSE;
     private Boolean existOnEms = Boolean.FALSE;
+
+    public NotificationSummary(Notification notification) {
+        this.notification = notification;
+    }
+
+    public String getCreationTimeOnPodString() {
+        return creationTimeOnPodString;
+    }
+
+    public void setCreationTimeOnPodString(String creationTimeOnPodString) {
+        this.creationTimeOnPodString = creationTimeOnPodString;
+    }
+
+    public String getDeliveryTimeOnPodString() {
+        return deliveryTimeOnPodString;
+    }
+
+    public void setDeliveryTimeOnPodString(String deliveryTimeOnPodString) {
+        this.deliveryTimeOnPodString = deliveryTimeOnPodString;
+    }
+
+    public String getCreationTimeOnEmsString() {
+        return creationTimeOnEmsString;
+    }
+
+    public void setCreationTimeOnEmsString(String creationTimeOnEmsString) {
+        this.creationTimeOnEmsString = creationTimeOnEmsString;
+    }
+
+    public String getDeliveryTimeOnEmsString() {
+        return deliveryTimeOnEmsString;
+    }
+
+    public void setDeliveryTimeOnEmsString(String deliveryTimeOnEmsString) {
+        this.deliveryTimeOnEmsString = deliveryTimeOnEmsString;
+    }
 
     public Date getCreationTimeOnEms() {
         return creationTimeOnEms;
@@ -71,9 +112,7 @@ public class NotificationSummary {
         return notification.getCreated();
     }
 
-    private final Notification notification;
-
-    public NotificationSummary(Notification notification) {
-        this.notification = notification;
+    public String getCreatedString() {
+        return notification.getCreatedString();
     }
 }
