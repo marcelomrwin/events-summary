@@ -1,29 +1,34 @@
 package com.masales.main;
 
 
+import static com.mongodb.client.model.Filters.eq;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import javax.inject.Inject;
+
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
+
+import org.bson.Document;
+
 import io.agroal.api.AgroalDataSource;
 import io.quarkus.agroal.DataSource;
 import io.quarkus.mongodb.MongoClientName;
 import io.quarkus.qson.runtime.QuarkusQsonMapper;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
-import org.bson.Document;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.sql.*;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
-import static com.mongodb.client.model.Filters.eq;
 
 @QuarkusMain
 public class EmsPodSummaryApp implements QuarkusApplication {
@@ -137,7 +142,7 @@ public class EmsPodSummaryApp implements QuarkusApplication {
 
         if (args.length < 1 && System.getenv("REPORT_PATH") == null) {
             System.out.println("Usage: events-summary  \"Test Result Folder\"");
-            System.out.println("Dont forget to configure environment variables");
+            System.out.println("Don't forget to configure environment variables");
             System.out.println("Please configure the variable using\nexport REPORT_PATH=<value>");
             System.out.println("Please configure the variable using\nexport POD_DB_IP=<value>");
             System.out.println("Please configure the variable using\nexport POD_DB_PORT=<value>");
@@ -262,6 +267,15 @@ public class EmsPodSummaryApp implements QuarkusApplication {
         File report = new File(eventsFolder, "events.js");
         if (report.exists()) report.delete();
 
+
+        int totalEvents = notifications.size();
+        int completeEvents = 0;
+        int inpodEvents = 0;
+        int inEMSEvents = 0;
+        NotificationSummary lastEvent = notifications.get(0);
+        PrintWriter pwSummary = new PrintWriter(new File(eventsFolder,"summary.properties"));
+        pwSummary.println("total.events="+totalEvents);
+
         PrintWriter pw = new PrintWriter(new FileWriter(report));
         pw.println("let events = [");
         String sep = "";
@@ -277,6 +291,7 @@ public class EmsPodSummaryApp implements QuarkusApplication {
                 sb.append("\"createdpodstring\":\"").append(ntfs.getCreationTimeOnPodString()).append("\",");
                 sb.append("\"dlvpod\":").append(ntfs.getDeliveryTimeOnPod().getTime()).append(",");
                 sb.append("\"dlvpodstring\":\"").append(ntfs.getDeliveryTimeOnPodString()).append("\"");
+                inpodEvents++;
             }
 
             sb.append(",").append("\"inems\":").append(ntfs.getExistOnEms());
@@ -285,7 +300,11 @@ public class EmsPodSummaryApp implements QuarkusApplication {
                 sb.append("\"createdemsstring\":\"").append(ntfs.getCreationTimeOnEmsString()).append("\",");
                 sb.append("\"dlvems\":").append(ntfs.getDeliveryTimeOnEms().getTime()).append(",");
                 sb.append("\"dlvemsstring\":\"").append(ntfs.getDeliveryTimeOnEmsString()).append("\"");
+                inEMSEvents++;
             }
+
+            if (ntfs.getExistOnPod() && ntfs.getExistOnEms())completeEvents++;
+
             sb.append("}");
             sep = ",";
             pw.println(sb.toString());
@@ -305,6 +324,16 @@ public class EmsPodSummaryApp implements QuarkusApplication {
             htmlWriter.print(HTML);
             htmlWriter.flush();
         }
+
+        //summary report
+        pwSummary.println("total.events.complete="+completeEvents);
+        pwSummary.println("total.events.in.pod="+inpodEvents);
+        pwSummary.println("total.events.not.in.pod="+(totalEvents- inpodEvents));
+        pwSummary.println("total.events.in.ems="+inEMSEvents);
+        pwSummary.println("total.events.not.in.ems="+(totalEvents- inEMSEvents));
+
+        pwSummary.flush();
+        pwSummary.close();
 
         return 0;
     }

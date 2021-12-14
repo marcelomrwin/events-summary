@@ -52,3 +52,6 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 You can then execute your native executable with: `./target/ems-pod-summary-1.0-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
+
+
+docker build -f src/main/docker/Dockerfile.native-distroless -t registry.devops.telekom.de/access40/dev/testing/scale-ems-pod/ems-pod-summary:latest .
